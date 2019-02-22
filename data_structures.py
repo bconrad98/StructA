@@ -11,11 +11,14 @@ class Dof:
 		self.disp = disp
 		# force in each degree of freedom on each node
 		self.force = force
+	def __eq__(self,dof):
+		return self.val == dof.val
 
 # Class the represents a node
 class Node:
 	def __init__(self,val1,val2,num_dofs=2):
-		if num_dofs == 2:
+		self.num_dofs = num_dofs
+		if self.num_dofs == 2:
 			self.dof1 = Dof(val1)
 			self.dof2 = Dof(val2)
 			self.dofs = [self.dof1,self.dof2]
@@ -40,6 +43,16 @@ class Ele:
 		# Find the cos and sin for the element
 		self.cos = (self.node2.dof1.val-self.node1.dof1.val)/self.length
 		self.sin = (self.node2.dof2.val-self.node1.dof2.val)/self.length
+		# local degrees of freedom
+		self.dofs = []
+		for node in nodes:
+			for dof in node.dofs:
+				self.dofs.append(dof)
+	def __get_index_dof(self,dof):
+		for i in range(length(self.dofs)):
+			if dof == dof[i]:
+				return i
+
 		
 	def __str__(self):
 		string = ''
