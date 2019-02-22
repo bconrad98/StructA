@@ -4,13 +4,13 @@
 
 # Class that represents a degree of freedom
 class Dof:
-	def __init__(self,val,disp=None):
+	def __init__(self,val,disp=None,force=None):
 		# value of location in space
 		self.val = val
 		# displacement after loads are applied
 		self.disp = disp
-		# global connectivity value to be assigned later
-		self.gcon = None
+		# force in each degree of freedom on each node
+		self.force = force
 
 # Class the represents a node
 class Node:
@@ -30,7 +30,7 @@ class Ele:
 	def __init__(self,node1,node2,E,A):
 		self.node1 = node1
 		self.node2 = node2
-		self.nodes = [node1,node2]
+		self.nodes = [self.node1,self.node2]
 		# find the length
 		self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
 						(self.node1.dof2.val-self.node2.dof2.val)**2)**.5
