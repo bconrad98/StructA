@@ -24,12 +24,12 @@ class TrussSolver:
 		K_red = np.zeros((n,n))
 		F_red = np.zeros((n,1))
 		# Fill F_red with the known forces
-		i = 0
-		for node in self.nodes:
-			for dof in node.dofs:
-				if dof.force!=None:
-					F_red[i] = dof.force
-					i+=1
+		for ele in self.eles:
+			for node in ele.nodes:
+				for dof in ele.dofs:
+					if dof.force!=None:
+						index = self.__get_gcon_dof(dof)
+						F_red[index] = dof.force
 		# assemble the reduced stiffness
 		[K_red,F_red] = self.__assemble_stiffness(K_red,F_red,n)
 		u_sol = np.linalg.inv(K_red).dot(F_red)
@@ -59,14 +59,12 @@ class TrussSolver:
 				for dof_i in node_i.dofs:
 					ldof_i = ele.get_index_dof(dof_i)
 					gdof_i = self.__get_gcon_dof(dof_i)
-					#print (gdof_i)
 					if gdof_i>=n:
 						continue
 					for node_j in ele.nodes:
 						for dof_j in node_j.dofs:
 							ldof_j = ele.get_index_dof(dof_j)
 							gdof_j = self.__get_gcon_dof(dof_j)
-							#print(gdof_j)
 							# if outside K_red, it has to be a known displacement
 							# consequence of reordering self.dofs
 							if gdof_j>=n:
