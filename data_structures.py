@@ -11,8 +11,12 @@ class Dof:
 		self.disp = disp
 		# force in each degree of freedom on each node
 		self.force = force
+		# give unique id to dof
+		self.id = None
 	def __eq__(self,dof):
-		return self.val == dof.val
+		return self.id == dof.id
+	def __str__(self):
+		return "id = "+str(self.id)+"\t disp = "+str(self.disp)
 
 # Class the represents a node
 class Node:
@@ -22,7 +26,7 @@ class Node:
 			self.dof1 = Dof(val1)
 			self.dof2 = Dof(val2)
 			self.dofs = [self.dof1,self.dof2]
-		else
+		else:
 			pass
 	def __str__(self):
 		return "x: "+str(val1)+"y: "+str(val2)+"\n u: "+str(self.dof1.disp)+"v: "+str(self.dof2.disp)
@@ -45,12 +49,12 @@ class Ele:
 		self.sin = (self.node2.dof2.val-self.node1.dof2.val)/self.length
 		# local degrees of freedom
 		self.dofs = []
-		for node in nodes:
+		for node in self.nodes:
 			for dof in node.dofs:
 				self.dofs.append(dof)
-	def __get_index_dof(self,dof):
-		for i in range(length(self.dofs)):
-			if dof == dof[i]:
+	def get_index_dof(self,dof):
+		for i in range(len(self.dofs)):
+			if dof == self.dofs[i]:
 				return i
 
 		
