@@ -19,5 +19,5 @@ def main():
 		dof_num=0
 		for dof in node.dofs:
 			dof_num+=1
-			print("node:",node_num,"dof:",dof_num,"disp:",dof.disp," PL/AE")
+			print("node:{:d}	dof:{:d}	disp:{:6.3f} PL/AE".format(node_num,dof_num,dof.disp))
 main()

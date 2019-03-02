@@ -1,9 +1,11 @@
 import numpy as np 
 import data_structures
+
 #===============================================================================
 # Class for solving truss structures
 #===============================================================================
 class TrussSolver:
+
 	# ==========================================================================
 	# eles - list of Element objects for the system
 	# nodes - list of Node objects for the system
@@ -67,15 +69,20 @@ class TrussSolver:
 			# move this dof to end, ones before stay same, after get moved down 1
 			self.dofs = self.dofs[0:i]+self.dofs[i+1:]+[self.dofs[i]]
 
-
+	#===========================================================================
+	# Method takes in empty K_red and F_red and returns them with correct vals
+	#===========================================================================
 	def __assemble_stiffness(self,K_red,F_red,n):
 		# loop through each element
-		i = 0
 		for ele in self.eles:
+			# call to internal method for creating local stiffness
 			K_loc = self.__get_k_local(ele)
+			# loop through each pair of dofs(dof_i,dof_j)
 			for dof_i in ele.dofs:
+				# uses 2 different methods to find the local and global index
 				ldof_i = ele.get_index_dof(dof_i)
 				gdof_i = self.__get_gcon_dof(dof_i)
+				# this row is a known displacement, so skip it
 				if gdof_i>=n:
 					continue
 				for dof_j in ele.dofs:
@@ -84,11 +91,17 @@ class TrussSolver:
 					# if outside K_red, it has to be a known displacement
 					# consequence of reordering self.dofs
 					if gdof_j>=n:
+						# move the known displacement to the other side
 						F_red[gdof_i] -= K_loc[ldof_i][ldof_j]*self.dofs[gdof_j].disp
 					else:
+						# inside K_red so add corresponding local element
 						K_red[gdof_i][gdof_j] += K_loc[ldof_i][ldof_j]
 		return K_red,F_red
 
+	#===========================================================================
+	# Method returns a local stiffness matrix for a given element
+	# arg ele - Element object that find K_loc for
+	#===========================================================================
 	def __get_k_local(self,ele):
 		# m is dimension of K_local (total degrees of freedom)
 		m = len(ele.dofs)
@@ -105,18 +118,23 @@ class TrussSolver:
 				K_loc[i][j] = ele.E*ele.A*angle_mat[i][j]/ele.length
 		return K_loc
 
-	# return number of boundary conditions(knowns)
+	#===========================================================================
+	# Method returns number of boundary conditions(known displacements)
+	# NOTE: this method cannnot be used correctly after using Truss.solve()
+	#===========================================================================
 	def __get_ndbcs(self):
 		num = 0
+		# go through each node, if displacement already has a val, it is known
 		for node in self.nodes:
 			for dof in node.dofs:
 				if (dof.disp != None):
 					num+=1
 		return num
 
-	# get index of specific dof in self.dofs()
+	#===========================================================================
+	# Method gets index of specific dof in self.dofs() (this is gcon)
+	#===========================================================================
 	def __get_gcon_dof(self,dof):
 		for i in range(len(self.dofs)):
 			if (dof == self.dofs[i]):
 				return i
-
