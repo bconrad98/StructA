@@ -13,8 +13,10 @@ class Dof:
 		self.force = force
 		# give unique id to dof
 		self.id = None
+	# determine that a dof is equal by checking that unique id is same
 	def __eq__(self,dof):
 		return self.id == dof.id
+	# when converted to string, returns the unique id and the displacement
 	def __str__(self):
 		return "id = "+str(self.id)+"\t disp = "+str(self.disp)
 
@@ -27,14 +29,18 @@ class Node:
 			self.dof2 = Dof(val2)
 			self.dofs = [self.dof1,self.dof2]
 		else:
+			# this will be used for 3D
 			pass
 	def __str__(self):
-		return "x: "+str(val1)+"y: "+str(val2)+"\n u: "+str(self.dof1.disp)+"v: "+str(self.dof2.disp)
-
+		string = ''
+		for dof in self.dofs:
+			string+=str(dof)+'\n'
+		return string
 
 # Class that represents an element
 class Ele:
 	def __init__(self,node1,node2,E,A):
+		# local nodes
 		self.node1 = node1
 		self.node2 = node2
 		self.nodes = [self.node1,self.node2]
@@ -52,12 +58,13 @@ class Ele:
 		for node in self.nodes:
 			for dof in node.dofs:
 				self.dofs.append(dof)
+	# method that returns ldof index of specific dof
 	def get_index_dof(self,dof):
 		for i in range(len(self.dofs)):
 			if dof == self.dofs[i]:
 				return i
 
-		
+	# when converted to a string this is what is returned
 	def __str__(self):
 		string = ''
 		i = 1

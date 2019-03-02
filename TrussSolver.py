@@ -1,7 +1,13 @@
 import numpy as np 
 import data_structures
-
+#===============================================================================
+# Class for solving truss structures
+#===============================================================================
 class TrussSolver:
+	# ==========================================================================
+	# eles - list of Element objects for the system
+	# nodes - list of Node objects for the system
+	# ==========================================================================
 	def __init__(self,eles,nodes):
 		self.eles = eles
 		self.nodes = nodes
@@ -14,7 +20,10 @@ class TrussSolver:
 				self.dofs.append(dof)
 				i += 1
 
-
+	# ==========================================================================
+	# Method for solving for the unknown displacements in a system
+	# return u_sol - nparray with the solutions
+	# ==========================================================================
 	def solve(self):
 		# moves boundary condition dofs to end
 		self.__reorder_dofs()
@@ -35,6 +44,10 @@ class TrussSolver:
 		u_sol = np.linalg.inv(K_red).dot(F_red)
 		return u_sol
 
+	# ==========================================================================
+	# Method reorders the list of dofs so that the dof with known displacements
+	# are at the end. (Identical to doing gcon)
+	# ==========================================================================
 	def __reorder_dofs(self):
 		# get list of the boundary dofs
 		bound_dofs = []
