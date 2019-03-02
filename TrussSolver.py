@@ -34,14 +34,19 @@ class TrussSolver:
 		F_red = np.zeros((n,1))
 		# Fill F_red with the known forces
 		for ele in self.eles:
-			for node in ele.nodes:
-				for dof in ele.dofs:
-					if dof.force!=None:
-						index = self.__get_gcon_dof(dof)
-						F_red[index] = dof.force
+			for dof in ele.dofs:
+				if dof.force!=None:
+					index = self.__get_gcon_dof(dof)
+					F_red[index] = dof.force
 		# assemble the reduced stiffness
 		[K_red,F_red] = self.__assemble_stiffness(K_red,F_red,n)
 		u_sol = np.linalg.inv(K_red).dot(F_red)
+		# fill the dofs with displacements in u_sol
+		i = 0
+		for dof in self.dofs:
+			if dof.disp == None:
+				dof.disp = float(u_sol[i])
+				i+=1
 		return u_sol
 
 	# ==========================================================================
@@ -68,22 +73,20 @@ class TrussSolver:
 		i = 0
 		for ele in self.eles:
 			K_loc = self.__get_k_local(ele)
-			for node_i in ele.nodes:
-				for dof_i in node_i.dofs:
-					ldof_i = ele.get_index_dof(dof_i)
-					gdof_i = self.__get_gcon_dof(dof_i)
-					if gdof_i>=n:
-						continue
-					for node_j in ele.nodes:
-						for dof_j in node_j.dofs:
-							ldof_j = ele.get_index_dof(dof_j)
-							gdof_j = self.__get_gcon_dof(dof_j)
-							# if outside K_red, it has to be a known displacement
-							# consequence of reordering self.dofs
-							if gdof_j>=n:
-								F_red[gdof_i] -= K_loc[ldof_i][ldof_j]*self.dofs[gdof_j].disp
-							else:
-								K_red[gdof_i][gdof_j] += K_loc[ldof_i][ldof_j]
+			for dof_i in ele.dofs:
+				ldof_i = ele.get_index_dof(dof_i)
+				gdof_i = self.__get_gcon_dof(dof_i)
+				if gdof_i>=n:
+					continue
+				for dof_j in ele.dofs:
+					ldof_j = ele.get_index_dof(dof_j)
+					gdof_j = self.__get_gcon_dof(dof_j)
+					# if outside K_red, it has to be a known displacement
+					# consequence of reordering self.dofs
+					if gdof_j>=n:
+						F_red[gdof_i] -= K_loc[ldof_i][ldof_j]*self.dofs[gdof_j].disp
+					else:
+						K_red[gdof_i][gdof_j] += K_loc[ldof_i][ldof_j]
 		return K_red,F_red
 
 	def __get_k_local(self,ele):

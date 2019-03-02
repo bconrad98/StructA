@@ -18,7 +18,7 @@ class Dof:
 		return self.id == dof.id
 	# when converted to string, returns the unique id and the displacement
 	def __str__(self):
-		return "id = "+str(self.id)+"\t disp = "+str(self.disp)
+		return "id = "+str(self.id)+"\tdisp = "+str(self.disp)
 
 # Class the represents a node
 class Node:

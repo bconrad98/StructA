@@ -12,6 +12,12 @@ def main():
 	eles = uf.create_eles(args.folder+"/elements.txt",nodes)
 	truss = ts.TrussSolver(eles,nodes)
 	u_sol = truss.solve()
-	for u in u_sol:
-		print(str(u)+"PL/AE")
+	print("All displacements in order:")
+	node_num = 0
+	for node in truss.nodes:
+		node_num+=1
+		dof_num=0
+		for dof in node.dofs:
+			dof_num+=1
+			print("node:",node_num,"dof:",dof_num,"disp:",dof.disp," PL/AE")
 main()
