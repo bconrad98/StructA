@@ -4,7 +4,7 @@ import argparse
 
 def main():
 	parser = argparse.ArgumentParser(description="Main file for solving truss structure")
-	parser.add_argument('folder',help='The name of the folder containing displacements,elements,forces,nodes')
+	parser.add_argument('folder',help='The path to the directory containing displacements,elements,forces,nodes files')
 	args = parser.parse_args()
 	nodes = uf.create_nodes(args.folder+"/nodes.txt",
 						 args.folder+"/displacements.txt",
