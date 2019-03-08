@@ -138,3 +138,28 @@ class TrussSolver:
 		for i in range(len(self.dofs)):
 			if (dof == self.dofs[i]):
 				return i
+
+	#===========================================================================
+	# Method does post processing to find strains, stresses, and forces
+	#===========================================================================
+	def post_process(self):
+		# find the strain,stress,force in each bar
+		for ele in self.eles:
+			# this only works for 2D
+			u1 = ele.node1.dof1.disp
+			u2 = ele.node2.dof1.disp
+			v1 = ele.node1.dof2.disp
+			v2 = ele.node2.dof2.disp
+			ele.strain = (u2-u1)*ele.cos/ele.length + \
+						 (v2-v1)*ele.sin/ele.length
+			ele.stress = ele.E*ele.strain
+			ele.force = ele.A*ele.stress
+			# set external forces that are still None to zero
+			for dof in ele.dofs:
+				if dof.force == None:
+					dof.force = 0.0
+			# find external forces on the nodes
+			ele.node1.dof1.force -= ele.force*ele.cos
+			ele.node1.dof2.force -= ele.force*ele.sin
+			ele.node2.dof1.force += ele.force*ele.cos
+			ele.node2.dof2.force += ele.force*ele.sin

@@ -58,6 +58,12 @@ class Ele:
 		for node in self.nodes:
 			for dof in node.dofs:
 				self.dofs.append(dof)
+		# strain in the element
+		self.strain = None
+		# stress in the element
+		self.stress = None
+		# force in the element
+		self.force = None
 	# method that returns ldof index of specific dof
 	def get_index_dof(self,dof):
 		for i in range(len(self.dofs)):

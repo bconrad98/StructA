@@ -17,6 +17,8 @@ def main():
 	truss = ts.TrussSolver(eles,nodes)
 	# solve for unkown displacements
 	u_sol = truss.solve()
+	# run the post processor
+	truss.post_process()
 	# print out all displacements in a pretty way
 	print("All displacements in order:")
 	node_num = 0
@@ -25,5 +27,10 @@ def main():
 		dof_num=0
 		for dof in node.dofs:
 			dof_num+=1
-			print("node:{:d}	dof:{:d}	disp:{:6.3f} PL/AE".format(node_num,dof_num,dof.disp))
+			print("node:{:d}	dof:{:d}	disp:{:6.3f} PL/AE    force:{:6.3f}P".format(node_num,dof_num,dof.disp,dof.force))
+	print ("Info for all elements:")
+	ele_num = 0
+	for ele in truss.eles:
+		ele_num += 1
+		print("ele:{:d}		strain:{:6.3f}	stress:{:6.3f}	force:{:6.3f}".format(ele_num,ele.strain,ele.stress,ele.force))
 main()
