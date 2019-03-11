@@ -27,10 +27,12 @@ def main():
 		dof_num=0
 		for dof in node.dofs:
 			dof_num+=1
-			print("node:{:d}	dof:{:d}	disp:{:6.3f} PL/AE    force:{:6.3f}P".format(node_num,dof_num,dof.disp,dof.force))
-	print ("Info for all elements:")
+			print("node:{:d}	dof:{:d}	disp:{:6.3E} PL/AE    force:{:6.3E} P".format(node_num,dof_num,dof.disp,dof.force))
+	# print out info on all the elements
+	print ("\nInfo for all elements:")
 	ele_num = 0
 	for ele in truss.eles:
 		ele_num += 1
-		print("ele:{:d}		strain:{:6.3f}	stress:{:6.3f}	force:{:6.3f}".format(ele_num,ele.strain,ele.stress,ele.force))
+		print("ele:{:d}		strain:{:6.3E}	stress:{:6.3f}	force:{:6.3f}".format(ele_num,ele.strain,ele.stress,ele.force))
+	# find the yielding force
 main()
