@@ -14,7 +14,10 @@ def create_nodes(node_file_name,disp_file_name,
 		if len(vals)<2:
 			continue
 		# append node to list of nodes
-		nodes.append(ds.Node(float(vals[0]),float(vals[1])))
+		if three_dim:
+			nodes.append(ds.Node(float(vals[0]),float(vals[1]),float(vals[2])))
+		else:
+			nodes.append(ds.Node(float(vals[0]),float(vals[1])))
 	node_file.close()
 	# read displacements and add the knowns in
 	disp_file = open(disp_file_name,'r')
