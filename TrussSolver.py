@@ -10,10 +10,16 @@ class TrussSolver:
 	# eles - list of Element objects for the system
 	# nodes - list of Node objects for the system
 	# ==========================================================================
-	def __init__(self,eles,nodes):
+	def __init__(self,eles,nodes,three_dim=False):
 		self.eles = eles
 		self.nodes = nodes
 		self.dofs = []
+		# flag that indicates three dimensions
+		self.three_dim = three_dim
+		if self.three_dim:
+			self.num_dim = 3
+		else:
+			self.num_dim = 2
 		# assign values for id's to each unique dof
 		i = 0
 		for node in nodes:
@@ -31,7 +37,8 @@ class TrussSolver:
 		self.__reorder_dofs()
 		# get number of boundary conditions
 		ndbcs = self.__get_ndbcs()
-		n = 2*len(self.nodes)-ndbcs
+		# this value changes based on number of dimensions
+		n = self.num_dim*len(self.nodes)-ndbcs
 		K_red = np.zeros((n,n))
 		F_red = np.zeros((n,1))
 		# Fill F_red with the known forces
@@ -40,7 +47,7 @@ class TrussSolver:
 				if dof.force!=None:
 					index = self.__get_gcon_dof(dof)
 					F_red[index] = dof.force
-		# assemble the reduced stiffness
+		# assemble the reduced stiffness matrix
 		[K_red,F_red] = self.__assemble_stiffness(K_red,F_red,n)
 		u_sol = np.linalg.inv(K_red).dot(F_red)
 		# fill the dofs with displacements in u_sol
@@ -108,11 +115,23 @@ class TrussSolver:
 		K_loc = np.zeros((m,m))
 		c = ele.cos
 		s = ele.sin
-		# this angle matrix is different for 3D
-		angle_mat = [[c**2,s*c,-c**2,-s*c],
-					 [s*c,s**2,-s*c,-s**2],
-					 [-c**2,-s*c,c**2,s*c],
-					 [-s*c,-s**2,s*c,s**2]]
+		if self.three_dim:
+			# z angle
+			z = ele.caz
+			R = np.zeros((6,6))
+			# fill in the axial angles since they are the only ones that matter
+			R[0][0],R[3][3] = c,c
+			R[0][1],[3][4] = s,s
+			R[0][2],[3][5] = z,z
+			K = np.zeros((6,6))
+			K[0][0],K[3][3] = 1
+			K[0][3],K[3][0] = -1
+			angle_mat = R.transpose().dot(K).dot(R)
+		else:
+			angle_mat = [[c**2,s*c,-c**2,-s*c],
+					 	[s*c,s**2,-s*c,-s**2],
+					 	[-c**2,-s*c,c**2,s*c],
+					 	[-s*c,-s**2,s*c,s**2]]
 		for i in range(m):
 			for j in range(m):
 				K_loc[i][j] = ele.E*ele.A*angle_mat[i][j]/ele.length
@@ -150,8 +169,15 @@ class TrussSolver:
 			u2 = ele.node2.dof1.disp
 			v1 = ele.node1.dof2.disp
 			v2 = ele.node2.dof2.disp
-			ele.strain = (u2-u1)*ele.cos/ele.length + \
-						 (v2-v1)*ele.sin/ele.length
+			if self.three_dim:
+				w1 = ele.node1.dof3.disp
+				w2 = ele.node2.dof3.disp
+				ele.strain = (u2-u1)*ele.cos/ele.length + \
+							(v2-v1)*ele.sin/ele.length + \
+							(w2-w1)*ele.caz/ele.length
+			else:
+				ele.strain = (u2-u1)*ele.cos/ele.length + \
+							(v2-v1)*ele.sin/ele.length 
 			ele.stress = ele.E*ele.strain
 			ele.force = ele.A*ele.stress
 			# set external forces that are still None to zero
@@ -163,3 +189,6 @@ class TrussSolver:
 			ele.node1.dof2.force -= ele.force*ele.sin
 			ele.node2.dof1.force += ele.force*ele.cos
 			ele.node2.dof2.force += ele.force*ele.sin
+			if self.three_dim:
+				ele.node1.dof3.force -=ele.force*ele.caz
+				ele.node2.dof3.force +=ele.force*ele.caz

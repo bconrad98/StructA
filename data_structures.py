@@ -22,15 +22,18 @@ class Dof:
 
 # Class the represents a node
 class Node:
-	def __init__(self,val1,val2,num_dofs=2):
+	def __init__(self,val1,val2,val3=None):
 		self.num_dofs = num_dofs
-		if self.num_dofs == 2:
+		if val3==None:
 			self.dof1 = Dof(val1)
 			self.dof2 = Dof(val2)
 			self.dofs = [self.dof1,self.dof2]
 		else:
-			# this will be used for 3D
-			pass
+			# 3 degrees of freedom option
+			self.dof1 = Dof(val1)
+			self.dof2 = Dof(val2)
+			self.dof3 = Dof(val3)
+			self.dofs = [self.dof1,self.dof2,self.dof3]
 	def __str__(self):
 		string = ''
 		for dof in self.dofs:
@@ -39,13 +42,18 @@ class Node:
 
 # Class that represents an element
 class Ele:
-	def __init__(self,node1,node2,E,A):
+	def __init__(self,node1,node2,E,A,three_dim=False):
 		# local nodes
 		self.node1 = node1
 		self.node2 = node2
 		self.nodes = [self.node1,self.node2]
 		# find the length
-		self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
+		if three_dim:
+			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
+						(self.node1.dof2.val-self.node2.dof2.val)**2 +
+						(self.node1.dof3.val-self.node2.dof3.val)**2)**.5
+		else:
+			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
 						(self.node1.dof2.val-self.node2.dof2.val)**2)**.5
 		# Young's modulus and cross sectional area
 		self.E = E
@@ -53,6 +61,9 @@ class Ele:
 		# Find the cos and sin for the element
 		self.cos = (self.node2.dof1.val-self.node1.dof1.val)/self.length
 		self.sin = (self.node2.dof2.val-self.node1.dof2.val)/self.length
+		if three_dim:
+			# have to find angle for the z dimension
+			self.caz = (self.node2.dof3.val-self.node1.dof3.val)/self.length
 		# local degrees of freedom
 		self.dofs = []
 		for node in self.nodes:
@@ -77,5 +88,4 @@ class Ele:
 		for node in self.nodes:
 			string += "Node "+str(i)+"\n"+str(node)
 			i += 1
-		# TODO: add more info? E,A,L,cos,sin,displacements?
 		return string

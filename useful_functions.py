@@ -3,7 +3,7 @@ import data_structures as ds
 
 # function reads three input files to completely fill info for all dofs
 def create_nodes(node_file_name,disp_file_name,
-					force_file_name):
+					force_file_name,three_dim=False):
 	nodes = []
 	node_file = open(node_file_name,'r')
 	# read the total num nodes

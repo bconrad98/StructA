@@ -1,6 +1,7 @@
 import TrussSolver as ts
 import useful_functions as uf
 import argparse
+import math
 
 def main():
 	# Add argument parser for easy command line use
@@ -33,6 +34,21 @@ def main():
 	ele_num = 0
 	for ele in truss.eles:
 		ele_num += 1
-		print("ele:{:d}		strain:{:6.3E}	stress:{:6.3f}	force:{:6.3f}".format(ele_num,ele.strain,ele.stress,ele.force))
-	# find the yielding force
+		print("ele:{:d}		strain:{:6.3E} P/EA	stress:{:6.3f} P/A	force:{:6.3f} P".format(ele_num,ele.strain,ele.stress,ele.force))
+	# find the critical elements for buckling and yielding
+	max_tension = 0.0
+	max_compress = 0.0
+	ind = 0
+	max_t_ind = 0
+	max_c_ind = 0
+	for ele in truss.eles:
+		if ele.force*ele.length**2<max_compress:
+			max_compress = ele.force*(ele.length**2)
+			max_c_ind = ind
+		elif ele.force>max_tension:
+			max_tension = ele.force
+			max_t_ind = ind
+		ind+=1
+	print ("The yield stress is",max_tension*truss.eles[0].A,"at element",max_t_ind+1)
+	print ("P crit is",math.pi**2*truss.eles[0].E/max_compress,"I  at element",max_c_ind+1)
 main()
