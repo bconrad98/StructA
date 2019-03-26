@@ -121,11 +121,11 @@ class TrussSolver:
 			R = np.zeros((6,6))
 			# fill in the axial angles since they are the only ones that matter
 			R[0][0],R[3][3] = c,c
-			R[0][1],[3][4] = s,s
-			R[0][2],[3][5] = z,z
+			R[0][1],R[3][4] = s,s
+			R[0][2],R[3][5] = z,z
 			K = np.zeros((6,6))
-			K[0][0],K[3][3] = 1
-			K[0][3],K[3][0] = -1
+			K[0][0],K[3][3] = 1,1
+			K[0][3],K[3][0] = -1,-1
 			angle_mat = R.transpose().dot(K).dot(R)
 		else:
 			angle_mat = [[c**2,s*c,-c**2,-s*c],

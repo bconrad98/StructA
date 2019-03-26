@@ -42,7 +42,7 @@ def create_nodes(node_file_name,disp_file_name,
 	return nodes
 
 # function reads input file and returns a list of elements
-def create_eles(file_name,nodes):
+def create_eles(file_name,nodes,three_dim=False):
 	eles = []
 	ele_file = open(file_name,'r')
 	ele_file.readline()
@@ -52,6 +52,6 @@ def create_eles(file_name,nodes):
 			continue
 		eles.append(ds.Ele(nodes[int(vals[0])-1],
 						nodes[int(vals[1])-1],
-						float(vals[2]),float(vals[3])))
+						float(vals[2]),float(vals[3]),three_dim))
 	ele_file.close()
 	return eles
