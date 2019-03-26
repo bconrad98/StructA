@@ -23,7 +23,6 @@ class Dof:
 # Class the represents a node
 class Node:
 	def __init__(self,val1,val2,val3=None):
-		self.num_dofs = num_dofs
 		if val3==None:
 			self.dof1 = Dof(val1)
 			self.dof2 = Dof(val2)
