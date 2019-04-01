@@ -41,7 +41,7 @@ class Node:
 
 # Class that represents an element
 class Ele:
-	def __init__(self,node1,node2,E,A,three_dim=False):
+	def __init__(self,node1,node2,E,A,I=None,three_dim=False):
 		# local nodes
 		self.node1 = node1
 		self.node2 = node2
@@ -54,9 +54,11 @@ class Ele:
 		else:
 			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
 						(self.node1.dof2.val-self.node2.dof2.val)**2)**.5
-		# Young's modulus and cross sectional area
+		# Young's modulus, cross sectional area, and I for the element
 		self.E = E
 		self.A = A
+		# only applicable for frames
+		self.I = I
 		# Find the cos and sin for the element
 		self.cos = (self.node2.dof1.val-self.node1.dof1.val)/self.length
 		self.sin = (self.node2.dof2.val-self.node1.dof2.val)/self.length
