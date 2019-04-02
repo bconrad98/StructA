@@ -20,19 +20,21 @@ class Dof:
 	def __str__(self):
 		return "id = "+str(self.id)+"\tdisp = "+str(self.disp)
 
-# Class the represents a node
+# Class the represents a node for a frame
 class Node:
 	def __init__(self,val1,val2,val3=None):
 		if val3==None:
 			self.dof1 = Dof(val1)
 			self.dof2 = Dof(val2)
-			self.dofs = [self.dof1,self.dof2]
+			self.dof3 = Dof(0)
+			self.dofs = [self.dof1,self.dof2,self.dof3]
 		else:
 			# 3 degrees of freedom option
 			self.dof1 = Dof(val1)
 			self.dof2 = Dof(val2)
 			self.dof3 = Dof(val3)
-			self.dofs = [self.dof1,self.dof2,self.dof3]
+			self.dof4 = Dof(0)
+			self.dofs = [self.dof1,self.dof2,self.dof3,self.dof4]
 	def __str__(self):
 		string = ''
 		for dof in self.dofs:

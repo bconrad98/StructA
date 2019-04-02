@@ -16,9 +16,9 @@ class FrameSolver:
 		# flag that indicates three dimensions
 		self.three_dim = three_dim
 		if self.three_dim:
-			self.num_dim = 3
+			self.num_dof = 4
 		else:
-			self.num_dim = 2
+			self.num_dof = 3
 		# assign values for id's to each unique dof
 		i = 0
 		for node in nodes:
@@ -37,15 +37,14 @@ class FrameSolver:
 		# get number of boundary conditions
 		ndbcs = self.__get_ndbcs()
 		# this value changes based on number of dimensions
-		n = self.num_dim*len(self.nodes)-ndbcs
+		n = self.num_dof*len(self.nodes)-ndbcs
 		K_red = np.zeros((n,n))
 		F_red = np.zeros((n,1))
 		# Fill F_red with the known forces
-		for ele in self.eles:
-			for dof in ele.dofs:
-				if dof.force!=None:
-					index = self.__get_gcon_dof(dof)
-					F_red[index] = dof.force
+		for dof in self.dofs:
+			if dof.force!=None:
+				index = self.__get_gcon_dof(dof)
+				F_red[index] = dof.force
 		# assemble the reduced stiffness matrix
 		[K_red,F_red] = self.__assemble_stiffness(K_red,F_red,n)
 		u_sol = np.linalg.inv(K_red).dot(F_red)

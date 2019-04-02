@@ -1,9 +1,9 @@
-import data_structures as ds
+import data_structures_frames as ds
 # useful functions for reading files
 
 # function reads three input files to completely fill info for all dofs
 def create_nodes(node_file_name,disp_file_name,
-					force_file_name,three_dof=False):
+					force_file_name,three_dim=False):
 	nodes = []
 	node_file = open(node_file_name,'r')
 	# read the total num nodes
@@ -14,7 +14,7 @@ def create_nodes(node_file_name,disp_file_name,
 		if len(vals)<2:
 			continue
 		# append node to list of nodes
-		if three_dof:
+		if three_dim:
 			nodes.append(ds.Node(float(vals[0]),float(vals[1]),float(vals[2])))
 		else:
 			nodes.append(ds.Node(float(vals[0]),float(vals[1])))
@@ -42,7 +42,7 @@ def create_nodes(node_file_name,disp_file_name,
 	return nodes
 
 # function reads input file and returns a list of elements
-def create_eles(file_name,nodes,three_dof=False,frame=False):
+def create_eles(file_name,nodes,three_dim=False):
 	eles = []
 	ele_file = open(file_name,'r')
 	ele_file.readline()
@@ -50,13 +50,9 @@ def create_eles(file_name,nodes,three_dof=False,frame=False):
 		vals = line.strip().split('\t')[1:]
 		if (len(vals)<4):
 			continue
-		if frame:
-			eles.append(ds.Ele(nodes[int(vals[0])-1],
-						nodes[int(vals[1])-1],
-						float(vals[2]),float(vals[3]),three_dof,
-						I=float(val[4])))
 		eles.append(ds.Ele(nodes[int(vals[0])-1],
 						nodes[int(vals[1])-1],
-						float(vals[2]),float(vals[3]),three_dof))
+						float(vals[2]),float(vals[3]),
+						I=float(vals[4]),three_dim=three_dim))
 	ele_file.close()
 	return eles
