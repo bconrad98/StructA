@@ -18,7 +18,7 @@ class Dof:
 		return self.id == dof.id
 	# when converted to string, returns the unique id and the displacement
 	def __str__(self):
-		return "id = "+str(self.id)+"\tdisp = "+str(self.disp)+"\tval= "+str(self.val)
+		return "id = "+str(self.id)+"\tdisp = "+str(self.disp)
 
 # Class the represents a node
 class Node:
@@ -41,20 +41,19 @@ class Node:
 
 # Class that represents an element
 class Ele:
-	def __init__(self,node1,node2,E,A,I=None,three_dof=False):
+	def __init__(self,node1,node2,E,A,I=None,three_dim=False):
 		# local nodes
 		self.node1 = node1
 		self.node2 = node2
 		self.nodes = [self.node1,self.node2]
 		# find the length
-		if three_dof:
+		if three_dim:
 			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
 						(self.node1.dof2.val-self.node2.dof2.val)**2 +
 						(self.node1.dof3.val-self.node2.dof3.val)**2)**.5
 		else:
 			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
 						(self.node1.dof2.val-self.node2.dof2.val)**2)**.5
-		print (self.length)
 		# Young's modulus, cross sectional area, and I for the element
 		self.E = E
 		self.A = A
@@ -63,7 +62,7 @@ class Ele:
 		# Find the cos and sin for the element
 		self.cos = (self.node2.dof1.val-self.node1.dof1.val)/self.length
 		self.sin = (self.node2.dof2.val-self.node1.dof2.val)/self.length
-		if three_dof:
+		if three_dim:
 			# have to find angle for the z dimension
 			self.caz = (self.node2.dof3.val-self.node1.dof3.val)/self.length
 		# local degrees of freedom

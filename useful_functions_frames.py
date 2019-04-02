@@ -11,6 +11,8 @@ def create_nodes(node_file_name,disp_file_name,
 	for line in node_file:
 		# input files have tabs
 		vals = line.strip().split('\t')[1:]
+		if len(vals)<2:
+			continue
 		# append node to list of nodes
 		if three_dof:
 			nodes.append(ds.Node(float(vals[0]),float(vals[1]),float(vals[2])))
@@ -40,7 +42,7 @@ def create_nodes(node_file_name,disp_file_name,
 	return nodes
 
 # function reads input file and returns a list of elements
-def create_eles(file_name,nodes,three_dof=False):
+def create_eles(file_name,nodes,three_dof=False,frame=False):
 	eles = []
 	ele_file = open(file_name,'r')
 	ele_file.readline()
@@ -48,8 +50,13 @@ def create_eles(file_name,nodes,three_dof=False):
 		vals = line.strip().split('\t')[1:]
 		if (len(vals)<4):
 			continue
+		if frame:
+			eles.append(ds.Ele(nodes[int(vals[0])-1],
+						nodes[int(vals[1])-1],
+						float(vals[2]),float(vals[3]),three_dof,
+						I=float(val[4])))
 		eles.append(ds.Ele(nodes[int(vals[0])-1],
 						nodes[int(vals[1])-1],
-						float(vals[2]),float(vals[3]),three_dof=three_dof))
+						float(vals[2]),float(vals[3]),three_dof))
 	ele_file.close()
 	return eles

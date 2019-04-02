@@ -1,4 +1,4 @@
-import TrussSolver as ts
+import FrameSolver as fs
 import useful_functions as uf
 import argparse
 import math
@@ -8,19 +8,19 @@ def main():
 	parser = argparse.ArgumentParser(description="Main file for solving truss structure")
 	parser.add_argument('folder_path',help='The path to the directory containing displacements,elements,forces,nodes files')
 	args = parser.parse_args()
-	# get list of all the nodes from input files, "True" means 3D
+	# get list of all the nodes from input files, frames have 3 degrees of freedom 
 	nodes = uf.create_nodes(args.folder_path+"/nodes.txt",
 						 args.folder_path+"/displacements.txt",
 						 args.folder_path+"/forces.txt",
 						 three_dof=True)
-	# get list of all elements from input files, "True" means 3D
-	eles = uf.create_eles(args.folder_path+"/elements.txt",nodes,three_dof=True)
+	# get list of all elements from input files, frames have three degrees of freedom and need I input
+	eles = uf.create_eles(args.folder_path+"/elements.txt",nodes,three_dof=True,frame=True)
 	# get the truss object
-	truss = ts.TrussSolver(eles,nodes,three_dim=True)
+	frame = fs.FrameSolver(eles,nodes,three_dim=False)
 	# solve for unkown displacements
-	u_sol = truss.solve()
+	u_sol = frame.solve()
 	# run the post processor
-	truss.post_process()
+	frame.post_process()
 	# print out all displacements in a pretty way
 	print("All displacements in order:")
 	node_num = 0
