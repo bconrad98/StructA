@@ -134,7 +134,6 @@ class FrameSolver:
 				 [0,-e,-d,0,e,-d],
 				 [0,d,b,0,-d,c]]
 			K_loc = R.transpose().dot(K).dot(R)
-		print(K_loc)
 		return K_loc
 
 	#===========================================================================
