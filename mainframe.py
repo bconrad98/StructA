@@ -30,13 +30,17 @@ def main():
 		for dof in node.dofs:
 			dof_num+=1
 			if dof_num==3:
-				print("node:{:d}	dof:{:d}	disp:{:6.3E} rad      moment:{:6.3E} ".format(node_num,dof_num,dof.disp,dof.force))
+				print("node:{:d}	dof:{:d}	disp:{:6.3E} rad ".format(node_num,dof_num,dof.disp))
+				#print("node:{:d}	dof:{:d}	disp:{:6.3E} rad      moment:{:6.3E} ".format(node_num,dof_num,dof.disp,dof.force))
 			else:
-				print("node:{:d}	dof:{:d}	disp:{:6.3E} PL/AE    force:{:6.3E} P".format(node_num,dof_num,dof.disp,dof.force))
+				print("node:{:d}	dof:{:d}	disp:{:6.3E} PL/AE".format(node_num,dof_num,dof.disp))
+				#print("node:{:d}	dof:{:d}	disp:{:6.3E} PL/AE    force:{:6.3E} P".format(node_num,dof_num,dof.disp,dof.force))
 	# print out info on all the elements
+	'''
 	print ("\nInfo for all elements:")
 	ele_num = 0
 	for ele in frame.eles:
 		ele_num += 1
 		print("ele:{:d}		strain:{:6.3E} P/EA	stress:{:6.3f} P/A	force:{:6.3f} P".format(ele_num,ele.strain,ele.stress,ele.force))
+	'''
 main()

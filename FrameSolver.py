@@ -40,7 +40,7 @@ class FrameSolver:
 		n = self.num_dof*len(self.nodes)-ndbcs
 		K_red = np.zeros((n,n))
 		F_red = np.zeros((n,1))
-		# Fill F_red with the known forces
+		# fill f_red with the known forces
 		for dof in self.dofs:
 			if dof.force!=None:
 				index = self.__get_gcon_dof(dof)
@@ -110,7 +110,6 @@ class FrameSolver:
 	def __get_k_local(self,ele):
 		# m is dimension of K_local (total degrees of freedom)
 		m = len(ele.dofs)
-		K_loc = np.zeros((m,m))
 		c = ele.cos
 		s = ele.sin
 		if self.three_dim:
@@ -123,26 +122,24 @@ class FrameSolver:
 			R[:3,:3] = [[c,s,0],[-s,c,0],[0,0,1]]
 			R[3:,3:] = [[c,s,0],[-s,c,0],[0,0,1]]
 			# derived K local for horizontal orientation
-			a = ele.E*ele.A/ele.length
-			b = 2*ele.E*ele.I/ele.length
-			c = 2*b
-			d = 3*b/ele.length
-			e = 2*d/ele.length
+			a = ele.E*ele.A/ele.length	 # EA/L
+			b = 2*ele.E*ele.I/ele.length # 2EI/L
+			c = 2*b 					 # 4EI/L
+			d = 3*b/ele.length			 # 6EI/L^2
+			e = 2*d/ele.length			 # 12EI/L^3
 			K = [[a,0,0,-a,0,0],
 				 [0,e,d,0,-e,d],
 				 [0,d,c,0,-d,b],
 				 [-a,0,0,a,0,0],
 				 [0,-e,-d,0,e,-d],
 				 [0,d,b,0,-d,c]]
-			angle_mat = R.transpose().dot(K).dot(R)
-		for i in range(m):
-			for j in range(m):
-				K_loc[i][j] = ele.E*ele.A*angle_mat[i][j]/ele.length
+			K_loc = R.transpose().dot(K).dot(R)
+		print(K_loc)
 		return K_loc
 
 	#===========================================================================
 	# Method returns number of boundary conditions(known displacements)
-	# NOTE: this method cannnot be used correctly after using Truss.solve()
+	# NOTE: this method cannnot be used correctly after using frame.solve()
 	#===========================================================================
 	def __get_ndbcs(self):
 		num = 0
