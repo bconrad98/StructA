@@ -10,4 +10,4 @@
     - displacements.txt
     - forces.txt
     - elements.txt
-
+4. **NOTE:** Currently elements.txt uses EI = .1EA
