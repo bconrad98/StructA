@@ -41,30 +41,26 @@ class Node:
 
 # Class that represents an element
 class Ele:
-	def __init__(self,node1,node2,E,A,I=None,three_dof=False):
+	def __init__(self,node1,node2,node3,E,Nu):
 		# local nodes
 		self.node1 = node1
 		self.node2 = node2
-		self.nodes = [self.node1,self.node2]
-		# find the length
-		if three_dof:
-			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
-						(self.node1.dof2.val-self.node2.dof2.val)**2 +
-						(self.node1.dof3.val-self.node2.dof3.val)**2)**.5
-		else:
-			self.length = ((self.node1.dof1.val-self.node2.dof1.val)**2 +
-						(self.node1.dof2.val-self.node2.dof2.val)**2)**.5
+		self.node3 = node3
+		self.nodes = [self.node1,self.node2,self.node3]
 		# Young's modulus, cross sectional area, and I for the element
 		self.E = E
-		self.A = A
-		# only applicable for frames
-		self.I = I
-		# Find the cos and sin for the element
-		self.cos = (self.node2.dof1.val-self.node1.dof1.val)/self.length
-		self.sin = (self.node2.dof2.val-self.node1.dof2.val)/self.length
-		if three_dof:
-			# have to find angle for the z dimension
-			self.caz = (self.node2.dof3.val-self.node1.dof3.val)/self.length
+		self.Nu = Nu
+		# Finding the area of the triangular element (1/2 of cross product)
+		# coordinates at node 1
+		coord_1 = np.array([self.node1.dof1.val,self.node1.dof2.val])
+		coord_2 = np.array([self.node2.dof1.val,self.node2.dof2.val])
+		coord_3 = np.array([self.node3.dof1.val,self.node3.dof2.val])
+		# vector from node 1 to node 3
+		u = coord_3 - coord_1
+		# vector from node 1 to node 2
+		v = coord_2 - coord_1
+		# take the cross product
+		self.A = np.cross(u,v)/2.0
 		# local degrees of freedom
 		self.dofs = []
 		for node in self.nodes:
