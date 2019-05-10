@@ -1,6 +1,7 @@
 # Braeden Conrad
-
 # Data structures to be used for solving trusses
+
+import numpy as np
 
 # Class that represents a degree of freedom
 class Dof:
@@ -50,17 +51,6 @@ class Ele:
 		# Young's modulus, cross sectional area, and I for the element
 		self.E = E
 		self.Nu = Nu
-		# Finding the area of the triangular element (1/2 of cross product)
-		# coordinates at node 1
-		coord_1 = np.array([self.node1.dof1.val,self.node1.dof2.val])
-		coord_2 = np.array([self.node2.dof1.val,self.node2.dof2.val])
-		coord_3 = np.array([self.node3.dof1.val,self.node3.dof2.val])
-		# vector from node 1 to node 3
-		u = coord_3 - coord_1
-		# vector from node 1 to node 2
-		v = coord_2 - coord_1
-		# take the cross product
-		self.A = np.cross(u,v)/2.0
 		# local degrees of freedom
 		self.dofs = []
 		for node in self.nodes:
@@ -72,6 +62,31 @@ class Ele:
 		self.stress = None
 		# force in the element
 		self.force = None
+		# the B matrix
+		# coordinates for each node
+		x1,y1 = [ self.node1.dof1.val, self.node1.dof2.val]
+		x2,y2 = [ self.node2.dof1.val, self.node2.dof2.val]
+		x3,y3 = [ self.node3.dof1.val, self.node3.dof2.val]
+		# Find the area of the element
+		self.A = x1*y2-x2*y1+x2*y3-x3*y2+x3*y1-x1*y3
+		# values that make up B matrix
+		b1 = (y2-y3)/(2* self.A)
+		c1 = (x3-x2)/(2* self.A)
+		b2 = (y3-y1)/(2* self.A)
+		c2 = (x1-x3)/(2* self.A)
+		b3 = (y1-y2)/(2* self.A)
+		c3 = (x2-x1)/(2* self.A)
+		# fill B matrix
+		self.B = np.array([[b1,0,b2,0,b3,0],
+					   [0,c1,0,c2,0,c3],
+					   [c1,b1,c2,b2,c3,b3]])
+		# the C matrix
+		a = self.E/(1-self.Nu**2)
+		b = self.Nu*a
+		c = self.E/(2*(1+self.Nu))
+		self.C = np.array([[a,b,0],
+						    [b,a,0],
+						    [0,0,c]])
 	# method that returns ldof index of specific dof
 	def get_index_dof(self,dof):
 		for i in range(len(self.dofs)):

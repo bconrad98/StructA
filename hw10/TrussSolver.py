@@ -10,16 +10,11 @@ class TrussSolver:
 	# eles - list of Element objects for the system
 	# nodes - list of Node objects for the system
 	# ==========================================================================
-	def __init__(self,eles,nodes,three_dim=False):
+	def __init__(self,eles,nodes):
 		self.eles = eles
 		self.nodes = nodes
 		self.dofs = []
-		# flag that indicates three dimensions
-		self.three_dim = three_dim
-		if self.three_dim:
-			self.num_dim = 3
-		else:
-			self.num_dim = 2
+		self.num_dim = 2
 		# assign values for id's to each unique dof
 		i = 0
 		for node in nodes:
@@ -110,32 +105,8 @@ class TrussSolver:
 	# arg ele - Element object that find K_loc for
 	#===========================================================================
 	def __get_k_local(self,ele):
-		# m is dimension of K_local (total degrees of freedom)
-		m = len(ele.dofs)
-		K_loc = np.zeros((m,m))
-		c = ele.cos
-		s = ele.sin
-		if self.three_dim:
-			# z angle
-			z = ele.caz
-			R = np.zeros((6,6))
-			# fill in the axial angles since they are the only ones that matter
-			R[0][0],R[3][3] = c,c
-			R[0][1],R[3][4] = s,s
-			R[0][2],R[3][5] = z,z
-			K = np.zeros((6,6))
-			K[0][0],K[3][3] = 1,1
-			K[0][3],K[3][0] = -1,-1
-			angle_mat = R.transpose().dot(K).dot(R)
-		else:
-			angle_mat = [[c**2,s*c,-c**2,-s*c],
-					 	[s*c,s**2,-s*c,-s**2],
-					 	[-c**2,-s*c,c**2,s*c],
-					 	[-s*c,-s**2,s*c,s**2]]
-		for i in range(m):
-			for j in range(m):
-				K_loc[i][j] = ele.E*ele.A*angle_mat[i][j]/ele.length
-		return K_loc
+		K_loc = ele.B.transpose().dot(ele.C).dot(ele.B)
+		return np.array(K_loc)
 
 	#===========================================================================
 	# Method returns number of boundary conditions(known displacements)
@@ -167,28 +138,12 @@ class TrussSolver:
 			# this only works for 2D
 			u1 = ele.node1.dof1.disp
 			u2 = ele.node2.dof1.disp
+			u3 = ele.node3.dof1.disp
 			v1 = ele.node1.dof2.disp
 			v2 = ele.node2.dof2.disp
-			if self.three_dim:
-				w1 = ele.node1.dof3.disp
-				w2 = ele.node2.dof3.disp
-				ele.strain = (u2-u1)*ele.cos/ele.length + \
-							(v2-v1)*ele.sin/ele.length + \
-							(w2-w1)*ele.caz/ele.length
-			else:
-				ele.strain = (u2-u1)*ele.cos/ele.length + \
-							(v2-v1)*ele.sin/ele.length 
-			ele.stress = ele.E*ele.strain
+			v3 = ele.node3.dof2.disp
+			u_nodes = np.array([u1,v1,u2,v2,u3,v3])
+			u_nodes.shape = (6,1)
+			ele.strain = ele.B.dot(u_nodes)
+			ele.stress = ele.C.dot(ele.strain)
 			ele.force = ele.A*ele.stress
-			# set external forces that are still None to zero
-			for dof in ele.dofs:
-				if dof.force == None:
-					dof.force = 0.0
-			# find external forces on the nodes
-			ele.node1.dof1.force -= ele.force*ele.cos
-			ele.node1.dof2.force -= ele.force*ele.sin
-			ele.node2.dof1.force += ele.force*ele.cos
-			ele.node2.dof2.force += ele.force*ele.sin
-			if self.three_dim:
-				ele.node1.dof3.force -=ele.force*ele.caz
-				ele.node2.dof3.force +=ele.force*ele.caz
